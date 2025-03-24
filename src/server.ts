@@ -1,13 +1,15 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import bookRoutes from './routes/bookRoutes';
 import noteRoutes from './routes/noteRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
 
+app.use('/api/users', userRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/notes', noteRoutes);
 

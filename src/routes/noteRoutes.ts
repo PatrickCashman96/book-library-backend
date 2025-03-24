@@ -1,14 +1,17 @@
-import express, { RequestHandler } from 'express';
+import express, { RequestHandler, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get('/book/:bookId', (async (req, res) => {
+router.use(authMiddleware);
+
+router.get('/book/:bookId', (async (req:Request, res:Response) => {
   const { bookId } = req.params;
   try {
     const notes = await prisma.note.findMany({
-      where: { bookId: Number(bookId) },
+      where: { bookId: Number(bookId), userId: req.user!.id },
     });
     res.json(notes);
   } catch (error) {
@@ -16,7 +19,7 @@ router.get('/book/:bookId', (async (req, res) => {
   }
 }) as RequestHandler);
 
-router.post('/book/:bookId', (async (req, res) => {
+router.post('/book/:bookId', (async (req:Request, res:Response) => {
   const { bookId } = req.params;
   const { content, rating } = req.body;
   if (!content) {
@@ -24,7 +27,7 @@ router.post('/book/:bookId', (async (req, res) => {
   }
   try {
     const note = await prisma.note.create({
-      data: { content, rating, bookId: Number(bookId) },
+      data: { content, rating, bookId: Number(bookId), userId: req.user!.id },
     });
     res.status(201).json(note);
   } catch (error) {
@@ -32,12 +35,12 @@ router.post('/book/:bookId', (async (req, res) => {
   }
 }) as RequestHandler);
 
-router.put('/:id', (async (req, res) => {
+router.put('/:id', (async (req:Request, res:Response) => {
   const { id } = req.params;
   const { content, rating } = req.body;
   try {
     const note = await prisma.note.update({
-      where: { id: Number(id) },
+      where: { id: Number(id), userId: req.user!.id  },
       data: { content, rating },
     });
     res.json(note);
@@ -46,11 +49,11 @@ router.put('/:id', (async (req, res) => {
   }
 }) as RequestHandler);
 
-router.delete('/:id', (async (req, res) => {
+router.delete('/:id', (async (req:Request, res:Response) => {
   const { id } = req.params;
   try {
     await prisma.note.delete({
-      where: { id: Number(id) },
+      where: { id: Number(id), userId: req.user!.id },
     });
     res.status(204).send();
   } catch (error) {

@@ -1,13 +1,16 @@
-import express, { RequestHandler } from 'express';
+import express, { Request, Response, RequestHandler } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// GET all books
-router.get('/', (async (req, res) => {
+router.use(authMiddleware);
+
+router.get('/', (async (req: Request, res: Response) => {
   try {
     const books = await prisma.book.findMany({
+      where: { userId: req.user!.id },
       include: { notes: true },
     });
     res.json(books);
@@ -16,12 +19,11 @@ router.get('/', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// GET a single book by ID
-router.get('/:id', (async (req, res) => {
+router.get('/:id', (async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const book = await prisma.book.findUnique({
-      where: { id: Number(id) },
+    const book = await prisma.book.findFirst({
+      where: { id: Number(id), userId: req.user!.id },
       include: { notes: true },
     });
     if (!book) return res.status(404).json({ error: 'Book not found' });
@@ -31,15 +33,18 @@ router.get('/:id', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// POST a new book
-router.post('/', (async (req, res) => {
+router.post('/', (async (req: Request, res: Response) => {
   const { title, author, genre, year } = req.body;
-  if (!title || !author) {
-    return res.status(400).json({ error: 'Title and author are required' });
-  }
+  if (!title || !author) return res.status(400).json({ error: 'Title and author required' });
   try {
     const book = await prisma.book.create({
-      data: { title, author, genre, year },
+      data: {
+        title,
+        author,
+        genre,
+        year,
+        userId: req.user!.id,
+      },
     });
     res.status(201).json(book);
   } catch (error) {
@@ -47,13 +52,12 @@ router.post('/', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// PUT (update) a book by ID
-router.put('/:id', (async (req, res) => {
+router.put('/:id', (async (req: Request, res: Response) => {
   const { id } = req.params;
   const { title, author, genre, year } = req.body;
   try {
     const book = await prisma.book.update({
-      where: { id: Number(id) },
+      where: { id: Number(id), userId: req.user!.id },
       data: { title, author, genre, year },
     });
     res.json(book);
@@ -62,12 +66,11 @@ router.put('/:id', (async (req, res) => {
   }
 }) as RequestHandler);
 
-// DELETE a book by ID
-router.delete('/:id', (async (req, res) => {
+router.delete('/:id', (async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     await prisma.book.delete({
-      where: { id: Number(id) },
+      where: { id: Number(id), userId: req.user!.id },
     });
     res.status(204).send();
   } catch (error) {
