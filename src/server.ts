@@ -1,10 +1,15 @@
 import express from 'express';
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import bookRoutes from './routes/bookRoutes';
 import noteRoutes from './routes/noteRoutes';
 import userRoutes from './routes/userRoutes';
 
+
+
 const app = express();
+
+app.use(cors());
 const prisma = new PrismaClient();
 
 app.use(express.json());
