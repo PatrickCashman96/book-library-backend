@@ -43,4 +43,21 @@ router.post('/login', (async (req:Request, res:Response) => {
   }
 }) as RequestHandler);
 
+// Verify
+router.get('/verify', (req: Request, res, Response)=>{
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader){
+    return res.status(401).json({error: 'Authorization header missing'});
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try{
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({valid: true, decoded});
+  }catch(error){
+    res.status(401).json({error: 'Invalid or expired token'});
+  }
+})
 export default router;
