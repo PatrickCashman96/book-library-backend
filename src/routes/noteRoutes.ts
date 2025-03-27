@@ -7,6 +7,18 @@ const prisma = new PrismaClient();
 
 router.use(authMiddleware);
 
+router.get('/', (async (req: Request, res: Response) => {
+  try {
+    const notes = await prisma.note.findMany({
+      where: { userId: req.user!.id },
+      include: { book: true },
+    });
+    res.json(notes);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user notes' });
+  }
+}) as RequestHandler);
+
 router.get('/book/:bookId', (async (req:Request, res:Response) => {
   const { bookId } = req.params;
   try {
