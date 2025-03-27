@@ -10,7 +10,7 @@ import userRoutes from './routes/userRoutes';
 const app = express();
 
 app.use(cors({
-  origin: 'https://libararary.netlify.app/',
+  origin: 'https://libararary.netlify.app',
 }));
 const prisma = new PrismaClient();
 
