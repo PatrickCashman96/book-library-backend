@@ -10,8 +10,17 @@ import userRoutes from './routes/userRoutes';
 const app = express();
 
 app.use(cors({
+<<<<<<< HEAD
   origin: 'https://libararary.netlify.app',
 }));
+=======
+  origin: 'https://your-site-name.netlify.app', // Replace with your actual Netlify URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],    // Allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  credentials: true // If you use cookies or auth headers
+}));
+
+>>>>>>> 0a5b593 (idk anymore)
 const prisma = new PrismaClient();
 
 app.use(express.json());
