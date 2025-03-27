@@ -4,17 +4,14 @@ import { PrismaClient } from '@prisma/client';
 import bookRoutes from './routes/bookRoutes';
 import noteRoutes from './routes/noteRoutes';
 import userRoutes from './routes/userRoutes';
+import morgan from "morgan";
 
 
 
 const app = express();
+app.use(morgan("dev"));
 
-app.use(cors({
-  origin: 'https://libararary.netlify.app', // Replace with your actual Netlify URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],    // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-  credentials: true // If you use cookies or auth headers
-}));
+app.use(cors({ origin: '*' }));
 
 const prisma = new PrismaClient();
 
