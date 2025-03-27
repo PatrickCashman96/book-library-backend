@@ -11,7 +11,17 @@ import morgan from "morgan";
 const app = express();
 app.use(morgan("dev"));
 
-app.use(cors({ origin: '*' }));
+
+app.use(
+  cors({
+    origin: "https://libararary.netlify.app", 
+    credentials: true,
+  })
+);
+
+
+app.options("*", cors());
+
 
 const prisma = new PrismaClient();
 
